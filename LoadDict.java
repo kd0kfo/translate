@@ -58,10 +58,10 @@ public class LoadDict {
 					System.err.println("Broken line: " + line);
 					continue;
 				}
-				String key = tokens[1];
-				String val = tokens[0];
+				String key = tokens[1].toLowerCase();
+				String val = tokens[0].toLowerCase();
 				if(retval.containsKey(key))
-					retval.get(tokens[1]).add(val);
+					retval.get(key).add(val);
 				else
 				{
 					ArrayList<String> new_list = new ArrayList<String>();
@@ -93,7 +93,7 @@ public class LoadDict {
 			System.out.println("Loaded dictionary with " + dict.size() + " entries.");
 			if(args.length >= 2)
 			{
-				String key = args[1];
+			    String key = args[1].toLowerCase();
 				System.out.println("Looking up " + key);
 				if(dict.containsKey(key))
 				{
