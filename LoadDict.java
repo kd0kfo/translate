@@ -9,10 +9,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.PosixParser;
 
 public class LoadDict {
 
-	public static HashMap<String, ArrayList<String> > load(final String[] args)
+    public static HashMap<String, ArrayList<String> > load(final String[] args){return load(args,false);}
+
+    public static HashMap<String, ArrayList<String> > load(final String[] args, boolean reverse_order)
 	{
 		String encoding = "UTF-8";
 		if(args.length == 0)
@@ -58,8 +64,19 @@ public class LoadDict {
 					System.err.println("Broken line: " + line);
 					continue;
 				}
-				String key = tokens[1].toLowerCase();
-				String val = tokens[0].toLowerCase();
+				String key;
+				String val;
+				if(reverse_order)
+				    {
+					key = tokens[0].toLowerCase();
+					val = tokens[1].toLowerCase();
+				    }
+				else
+				    {
+					key = tokens[1].toLowerCase();
+					val = tokens[0].toLowerCase();
+				    }
+				
 				if(retval.containsKey(key))
 					retval.get(key).add(val);
 				else
@@ -86,14 +103,36 @@ public class LoadDict {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-		HashMap<String, ArrayList<String> > dict = load(args);
+	    
+	    Options options = new Options();
+	    options.addOption("r", false, "Reverse dictionary search");
+	    CommandLineParser parser = new PosixParser();
+
+	    CommandLine cmd = null;
+	    try
+		{
+		    cmd = parser.parse(options, args);
+		}
+	    catch(org.apache.commons.cli.ParseException pe)
+		{
+		    System.err.println("There was a problem parsing command line options. Here comes the stack trace...");
+		    pe.printStackTrace();
+		    System.exit(1);
+		}
+
+	    boolean reverse_order = false;
+	    if(cmd.hasOption("r"))
+		reverse_order = true;
+			
+	    String[] cmd_args = cmd.getArgs();
+	    HashMap<String, ArrayList<String> > dict = load(cmd_args,reverse_order);
+	    
 		if(dict != null)
 		{
 			System.out.println("Loaded dictionary with " + dict.size() + " entries.");
-			if(args.length >= 2)
+			if(cmd_args.length >= 2)
 			{
-			    String key = args[1].toLowerCase();
+			    String key = cmd_args[1].toLowerCase();
 				System.out.println("Looking up " + key);
 				if(dict.containsKey(key))
 				{
@@ -121,7 +160,6 @@ public class LoadDict {
 						}
 						
 					}
-					
 				}
 			}
 		}
